@@ -3,21 +3,22 @@ program uffomg
   use uff, only: ufffortran
   implicit none
 
-  real(8) :: points(12)
-  integer :: npoints = 4
+  real(8) :: points(15)
+  integer :: npoints = 5
   integer :: pdim = 3
   real(8) :: metric(3)
   real(8) :: tolerance = 1e-5
-  real(8) :: newpoints(12)
-  logical :: newpointmasks(4)
+  real(8) :: newpoints(15)
+  integer :: newpointmasks(5)
   integer :: nnewpoints = -1
-  integer :: inverse(4)
+  integer :: inverse(5)
 
   integer :: i !< counter
 
   points = (/ 1., 1., 1., &
             & 2., 2., 2., &
             & 1., 1., 1., &
+            & 3., 3., 3., &
             & 3., 3., 3. /)
 
   metric = (/ 1., 0., 0./)

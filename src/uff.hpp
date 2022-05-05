@@ -53,15 +53,15 @@ std::vector<size_t> sort_indices(const std::vector<T>& v) {
  *   newpointmasks <- npoints
  *   inverse <- npoints
  */
-void uff(double* points,      /* in */
-         int& npoints,        /* in */
-         int& pdim,           /* in */
-         double* metric,      /* in */
-         double& tolerance,   /* in */
-         double* newpoints,   /* out */
-         bool* newpointmasks, /* out */
-         int& nnewpoints,     /* out */
-         int* inverse) {      /* out */
+void uff(double* points,     /* in */
+         int& npoints,       /* in */
+         int& pdim,          /* in */
+         double* metric,     /* in */
+         double& tolerance,  /* in */
+         double* newpoints,  /* out */
+         int* newpointmasks, /* out */
+         int& nnewpoints,    /* out */
+         int* inverse) {     /* out */
 
   const double tolerance_squared{tolerance * tolerance};
 
@@ -91,8 +91,12 @@ void uff(double* points,      /* in */
   for (unsigned int lower_limit = 0;
       lower_limit < metric_order_indices.size() - 1; lower_limit++) {
     // Point already processed
-    if (new_indices[metric_order_indices[lower_limit]] != -1) continue;
-    newpointmasks[metric_order_indices[lower_limit]] = true;
+    if (new_indices[metric_order_indices[lower_limit]] != -1) {
+        newpointmasks[metric_order_indices[lower_limit]] = 0;
+        continue;
+    } else {
+        newpointmasks[metric_order_indices[lower_limit]] = 1;
+    }
 
     // Point has not been processed -> add it to new point list
     for (unsigned int i_dim{}; i_dim < pdim; i_dim++) {

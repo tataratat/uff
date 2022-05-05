@@ -20,7 +20,7 @@ contains
     real(8), intent(in) :: metric(:)
     real(8), intent(in) :: tolerance
     real(8), intent(out) :: newpoints(:)
-    logical, intent(out) :: newpointmasks(:)
+    integer, intent(out) :: newpointmasks(:)
     integer, intent(out) :: nnewpoints
     integer, intent(out) :: inverse(:)
 

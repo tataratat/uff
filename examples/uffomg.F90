@@ -6,7 +6,7 @@ program uffomg
   real(8) :: metric(3)
   real(8) :: tolerance = 1e-5
   real(8) :: newpoints(12)
-  logical :: newpointmasks(4)
+  integer :: newpointmasks(4)
   integer :: nnewpoints = -1
   integer :: inverse(4)
 

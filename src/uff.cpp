@@ -8,7 +8,7 @@ extern "C" {
             double* metric,
             double* tolerance,
             double* newpoints,
-            bool* newpointmasks,
+            int* newpointmasks,
             int* nnewpoints,
             int* inverse) {
 
@@ -30,7 +30,7 @@ extern "C" {
              double* metric,
              double* tolerance,
              double* newpoints,
-             bool* newpointmasks,
+             int* newpointmasks,
              int* nnewpoints,
              int* inverse) {
 

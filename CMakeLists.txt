@@ -31,6 +31,7 @@ target_include_directories(uff
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:${incl_dest}>)
 set_target_properties(uff PROPERTIES CXX_STANDARD 11)
+target_compile_options(uff PRIVATE -O3) 
 
 if(BUILD_FORTRAN_MODULE)
   message("*** building additional fortran module ***")

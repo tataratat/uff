@@ -47,9 +47,9 @@ std::vector<size_t> sort_indices(const std::vector<T>& v) {
  * Implementation adapted to be as primitive as possible.
  * Manage memory beforehand!
  * Buffer size hints:
- *   points <- npoints
+ *   points <- npoints * pdim
  *   metric <- pdim
- *   newpoints <- npoints (may not use all. thus, nnewpoints)
+ *   newpoints <- npoints * pdim (may not use all. thus, nnewpoints)
  *   newpointmasks <- npoints
  *   inverse <- npoints
  */
@@ -68,9 +68,9 @@ void uff(double* points,     /* in */
   // Create a vector that contains the metric
   std::vector<double> vector_metric{};
   vector_metric.resize(npoints);
-  for (unsigned int i{}; i < npoints; i++) {
+  for (int i{0}; i < npoints; i++) {
     vector_metric[i] = metric[0] * points[i * pdim];
-    for (unsigned int j{1}; j < pdim; j++) {
+    for (int j{1}; j < pdim; j++) {
       vector_metric[i] +=
         metric[j]
         * points[i * pdim + j]; 
@@ -88,7 +88,7 @@ void uff(double* points,     /* in */
 
   // Loop over points
   nnewpoints = 0;
-  for (unsigned int lower_limit = 0;
+  for (unsigned int lower_limit{0};
       lower_limit < metric_order_indices.size() - 1; lower_limit++) {
     // Point already processed
     if (new_indices[metric_order_indices[lower_limit]] != -1) {
@@ -99,7 +99,7 @@ void uff(double* points,     /* in */
     }
 
     // Point has not been processed -> add it to new point list
-    for (unsigned int i_dim{}; i_dim < pdim; i_dim++) {
+    for (int i_dim{0}; i_dim < pdim; i_dim++) {
       new_points.push_back(
           points[metric_order_indices[lower_limit]*pdim + i_dim]);
     }
@@ -127,19 +127,22 @@ void uff(double* points,     /* in */
   // Special case
   const auto &last_index = metric_order_indices.size() - 1;
   if (new_indices[metric_order_indices[last_index]] == -1) {
-    for (unsigned int i_dim{}; i_dim < pdim; i_dim++) {
+    for (int i_dim{0}; i_dim < pdim; i_dim++) {
       new_points.push_back(
           points[metric_order_indices[last_index]*pdim + i_dim]);
     }
     new_indices[metric_order_indices[last_index]] = nnewpoints;
     nnewpoints++;
+    newpointmasks[metric_order_indices[last_index]] = 1;
+  } else {
+    newpointmasks[metric_order_indices[last_index]] = 0;
   }
 
 
   // fill return buffer
-  for (int i{}; i < npoints; i++) {
+  for (int i{0}; i < npoints; i++) {
     if (i < nnewpoints) {
-      for (int j{}; j < pdim; j++) {
+      for (int j{0}; j < pdim; j++) {
         newpoints[i*pdim + j] = new_points[i*pdim + j];
       }
     }

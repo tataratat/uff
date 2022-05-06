@@ -2,7 +2,7 @@
 _`U`ff, once upon a time, I've created a mesh with a lot of duplicating vertices and needed to `F`ind unique vertices `F`ast._
 
 ## Install guide
-__c++ (minimal):__
+### c++ (minimal):
 ```
 git clone git@github.com:tataratat/uff.git
 cd uff
@@ -23,7 +23,7 @@ use uff, only ufffortran
 call ufffortran(...)
 ```
 
-__python:__
+### python:
 _option1: `pip`_
 ```
 pip install uffpy
@@ -31,6 +31,10 @@ pip install uffpy
 It works the best with `gcc` and `clang`. To make sure, you can set:
 ```
 export CC=gcc # or clang
+```
+The newest version should always be available with:
+```
+pip install git+https://github.com/tataratat/uff.git@dev
 ```
 
 _option2: DIY_

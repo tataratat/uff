@@ -1,0 +1,4 @@
+setuptools>=42
+wheel
+pybind11
+numpy

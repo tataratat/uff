@@ -27,6 +27,7 @@ setup(
     url="https://github.com/tataratat/uff",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
+    package_data={"src": ["*.hpp"]}, 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: MIT License',

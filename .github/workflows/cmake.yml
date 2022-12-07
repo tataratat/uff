@@ -38,5 +38,5 @@ jobs:
       run: pip install -r requirements.txt
     
     - name: Install
-      run: python3 setup.py install
+      run: python3 setup.py install --user
 

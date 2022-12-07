@@ -7,13 +7,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_with_cmake:
+    name: build with cmake
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install depenencies
+    - name: Install dependencies
       run: sudo apt-get install gfortran 
       
 
@@ -25,4 +26,17 @@ jobs:
     
     - name: Install
       run: cd build && make install
+  
+  build_with_python:
+    name: build with python
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: action/checkout@v3
+    
+    - name: Install dependencies
+      run: pip install -r requierements.txt
+    
+    - name: Install
+      run: python3 setup.py install
 

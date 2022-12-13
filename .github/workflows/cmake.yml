@@ -9,8 +9,11 @@ on:
 jobs:
   build_with_cmake:
     name: build with cmake
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    
     steps:
     - uses: actions/checkout@v3
     
@@ -29,14 +32,21 @@ jobs:
   
   build_with_python:
     name: build with python
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     
     steps:
     - uses: actions/checkout@v3
+      with: 
+        python-version: ${{matrix.python-version}}
     
     - name: Install dependencies
       run: pip install -r requirements.txt
     
     - name: Install
       run: python3 setup.py install --user
+      
 

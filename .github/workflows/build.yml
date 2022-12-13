@@ -4,31 +4,6 @@ on:
   push
 
 jobs:
-  build_with_cmake:
-    name: build with cmake
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install dependencies
-      run: | 
-        sudo apt-get install gfortran -y
-        sudo apt-get install python3-pip -y
-        pip install pybind11
-
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DBUILD_EXAMPLES=OFF -DBUILD_FORTRAN_MODULE=OFF -DCMAKE_INSTALL_PREFIX=/home/runner/work/
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build  
-    
-    - name: Install
-      run: cd build && make install
-  
   build_with_python:
     name: build with python
     runs-on: ${{ matrix.os }}
@@ -43,7 +18,7 @@ jobs:
         python-version: ${{matrix.python-version}}
     
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: pip3 install -r requirements.txt
     
     - name: Install
       run: python3 setup.py install --user

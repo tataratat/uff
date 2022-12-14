@@ -1,0 +1,26 @@
+name: Build with CMake and Python
+
+on:
+  push
+
+jobs:
+  build_with_python:
+    name: build with python
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-10.15, ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    
+    steps:
+    - uses: actions/checkout@v3
+      with: 
+        python-version: ${{matrix.python-version}}
+    
+    - name: Install dependencies
+      run: pip3 install -r requirements.txt
+    
+    - name: Install
+      run: python3 setup.py install --user
+      
+

@@ -13,7 +13,8 @@ test-extras = ["test"]
 before-build = "rm -rf {project}/build"
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64"]
+archs = ["x86_64", "arm64"]
+test-skip = ["*arm64"]
 build = ["cp*"]
 
 [tool.cibuildwheel.linux]

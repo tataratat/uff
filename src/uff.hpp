@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 #include <numeric>
 #include <vector>
 
@@ -72,6 +73,7 @@ void uff(double* points,     /* in */
       vector_metric[i] += metric[j] * points[i * pdim + j];
     }
   }
+  std::cout << " L 75";
 
   // Sort Metric Vector
   const auto metric_order_indices = sort_indices(vector_metric);
@@ -106,7 +108,9 @@ void uff(double* points,     /* in */
       }
     }
     new_indices[metric_order_indices[lower_limit]] = nnewpoints;
-    stable_inverse[nnewpoints] = metric_order_indices[lower_limit];
+    if (stable) {
+      stable_inverse[nnewpoints] = metric_order_indices[lower_limit];
+    }
 
     // Now check allowed range for duplicates
     unsigned int upper_limit = lower_limit + 1;
@@ -157,11 +161,11 @@ void uff(double* points,     /* in */
     for (int i{0}; i < npoints; i++) {
       if (newpointmasks[i] == 1) {
         for (int j{0}; j < pdim; j++) {
-          newpoints[counter * pdim + j] = new_points[i * pdim + j];
+          newpoints[counter * pdim + j] = points[i * pdim + j];
         }
         counter++;
       }
-      inverse[i] = new_indices[stable_inverse[i]];
+      inverse[i] = stable_inverse[new_indices[i]];
     }
   }
 

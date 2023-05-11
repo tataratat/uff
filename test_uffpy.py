@@ -4,13 +4,14 @@ import numpy as np
 a = np.random.rand(10,3)
 a[1,:] = a[3,:]
 a[4,:] = a[7,:]
-i0,i1,i2 = uff.uffpy(a, 1e-3, False)
+i0,i1,i2 = uff.uffpy(a, 1e-5, False)
 print(a)
 print(i0)
 print(i1)
 print(i2)
+print(np.allclose(a, i0[i2]))
 
-i0,i1,i2 = uff.uffpy(a, 1e-3, True)
+i0,i1,i2 = uff.uffpy(a, 1e-5, True)
 print(a)
 print(i0)
 print(i1)

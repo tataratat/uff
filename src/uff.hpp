@@ -73,7 +73,6 @@ void uff(double* points,     /* in */
       vector_metric[i] += metric[j] * points[i * pdim + j];
     }
   }
-  std::cout << " L 75";
 
   // Sort Metric Vector
   const auto metric_order_indices = sort_indices(vector_metric);
@@ -83,9 +82,6 @@ void uff(double* points,     /* in */
   new_points.reserve(npoints * pdim);
   std::vector<int> new_indices, stable_inverse;
   new_indices.assign(npoints, -1);
-  if (stable) {
-    stable_inverse.assign(npoints, -1);
-  }
 
   // Loop over points
   nnewpoints = 0;
@@ -94,7 +90,6 @@ void uff(double* points,     /* in */
        lower_limit++) {
     // Point already processed
     if (new_indices[metric_order_indices[lower_limit]] != -1) {
-      newpointmasks[metric_order_indices[lower_limit]] = 0;
       continue;
     } else {
       newpointmasks[metric_order_indices[lower_limit]] = 1;
@@ -108,9 +103,6 @@ void uff(double* points,     /* in */
       }
     }
     new_indices[metric_order_indices[lower_limit]] = nnewpoints;
-    if (stable) {
-      stable_inverse[nnewpoints] = metric_order_indices[lower_limit];
-    }
 
     // Now check allowed range for duplicates
     unsigned int upper_limit = lower_limit + 1;
@@ -126,6 +118,16 @@ void uff(double* points,     /* in */
           < tolerance_squared;
       if (is_duplicate) {
         new_indices[metric_order_indices[upper_limit]] = nnewpoints;
+        if (stable) {
+          if (metric_order_indices[upper_limit]
+              < metric_order_indices[lower_limit]) {
+            newpointmasks[metric_order_indices[upper_limit]] = 1;
+            newpointmasks[metric_order_indices[lower_limit]] = 0;
+            stable_inverse[nnewpoints] = metric_order_indices[upper_limit];
+          }
+        } else {
+          newpointmasks[metric_order_indices[upper_limit]] = 0;
+        }
       }
       upper_limit++;
     }
@@ -158,11 +160,15 @@ void uff(double* points,     /* in */
     }
   } else {
     int counter{};
+    if (stable) {
+      stable_inverse.assign(nnewpoints, -1);
+    }
     for (int i{0}; i < npoints; i++) {
       if (newpointmasks[i] == 1) {
         for (int j{0}; j < pdim; j++) {
           newpoints[counter * pdim + j] = points[i * pdim + j];
         }
+        stable_inverse[new_indices[i]] = counter;
         counter++;
       }
       inverse[i] = stable_inverse[new_indices[i]];

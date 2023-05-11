@@ -1,14 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <numeric>
 #include <algorithm>
-
+#include <numeric>
+#include <vector>
 
 namespace uff {
 
 /* util routines */
-template <typename T>
+template<typename T>
 inline T diff_norm_squared(const T* a,
                            const size_t& start_a,
                            const size_t& start_b,
@@ -21,28 +20,26 @@ inline T diff_norm_squared(const T* a,
   return res;
 }
 
-
 /*
  * Sort Vector using lambda expressions
  * ref:
  *   stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
  */
-template <typename T>
+template<typename T>
 std::vector<size_t> sort_indices(const std::vector<T>& v) {
   std::vector<size_t> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
-  std::stable_sort(idx.begin(), idx.end(),
-                   [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
+  std::stable_sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {
+    return v[i1] < v[i2];
+  });
 
   return idx;
 }
 
-
-
 /*!
  * Takes a random set of points and uniquifies the points using a metric
- * In theory this has complexity O(nlogn) whereas a KDTree has complexity 
- * O(n (logn)^dim). 
+ * In theory this has complexity O(nlogn) whereas a KDTree has complexity
+ * O(n (logn)^dim).
  *
  * Implementation adapted to be as primitive as possible.
  * Manage memory beforehand!
@@ -58,6 +55,7 @@ void uff(double* points,     /* in */
          int& pdim,          /* in */
          double* metric,     /* in */
          double& tolerance,  /* in */
+         const bool& stable, /* in */
          double* newpoints,  /* out */
          int* newpointmasks, /* out */
          int& nnewpoints,    /* out */
@@ -71,9 +69,7 @@ void uff(double* points,     /* in */
   for (int i{0}; i < npoints; i++) {
     vector_metric[i] = metric[0] * points[i * pdim];
     for (int j{1}; j < pdim; j++) {
-      vector_metric[i] +=
-        metric[j]
-        * points[i * pdim + j]; 
+      vector_metric[i] += metric[j] * points[i * pdim + j];
     }
   }
 
@@ -83,39 +79,47 @@ void uff(double* points,     /* in */
   // Reallocate new vector
   std::vector<double> new_points{};
   new_points.reserve(npoints * pdim);
-  std::vector<int> new_indices;
+  std::vector<int> new_indices, stable_inverse;
   new_indices.assign(npoints, -1);
+  if (stable) {
+    stable_inverse.assign(npoints, -1);
+  }
 
   // Loop over points
   nnewpoints = 0;
   for (unsigned int lower_limit{0};
-      lower_limit < metric_order_indices.size() - 1; lower_limit++) {
+       lower_limit < metric_order_indices.size() - 1;
+       lower_limit++) {
     // Point already processed
     if (new_indices[metric_order_indices[lower_limit]] != -1) {
-        newpointmasks[metric_order_indices[lower_limit]] = 0;
-        continue;
+      newpointmasks[metric_order_indices[lower_limit]] = 0;
+      continue;
     } else {
-        newpointmasks[metric_order_indices[lower_limit]] = 1;
+      newpointmasks[metric_order_indices[lower_limit]] = 1;
     }
 
     // Point has not been processed -> add it to new point list
-    for (int i_dim{0}; i_dim < pdim; i_dim++) {
-      new_points.push_back(
-          points[metric_order_indices[lower_limit]*pdim + i_dim]);
+    if (!stable) {
+      for (int i_dim{0}; i_dim < pdim; i_dim++) {
+        new_points.push_back(
+            points[metric_order_indices[lower_limit] * pdim + i_dim]);
+      }
     }
     new_indices[metric_order_indices[lower_limit]] = nnewpoints;
+    stable_inverse[nnewpoints] = metric_order_indices[lower_limit];
 
     // Now check allowed range for duplicates
     unsigned int upper_limit = lower_limit + 1;
-    while (
-        (vector_metric[metric_order_indices[upper_limit]]
-           - vector_metric[metric_order_indices[lower_limit]]) < tolerance
-        && upper_limit < metric_order_indices.size()
-    ) {
-      const bool is_duplicate = diff_norm_squared(points, 
-          metric_order_indices[lower_limit] * pdim,
-          metric_order_indices[upper_limit] * pdim,
-          pdim) < tolerance_squared;
+    while ((vector_metric[metric_order_indices[upper_limit]]
+            - vector_metric[metric_order_indices[lower_limit]])
+               < tolerance
+           && upper_limit < metric_order_indices.size()) {
+      const bool is_duplicate =
+          diff_norm_squared(points,
+                            metric_order_indices[lower_limit] * pdim,
+                            metric_order_indices[upper_limit] * pdim,
+                            pdim)
+          < tolerance_squared;
       if (is_duplicate) {
         new_indices[metric_order_indices[upper_limit]] = nnewpoints;
       }
@@ -125,11 +129,11 @@ void uff(double* points,     /* in */
   }
 
   // Special case
-  const auto &last_index = metric_order_indices.size() - 1;
+  const auto& last_index = metric_order_indices.size() - 1;
   if (new_indices[metric_order_indices[last_index]] == -1) {
     for (int i_dim{0}; i_dim < pdim; i_dim++) {
       new_points.push_back(
-          points[metric_order_indices[last_index]*pdim + i_dim]);
+          points[metric_order_indices[last_index] * pdim + i_dim]);
     }
     new_indices[metric_order_indices[last_index]] = nnewpoints;
     nnewpoints++;
@@ -138,19 +142,29 @@ void uff(double* points,     /* in */
     newpointmasks[metric_order_indices[last_index]] = 0;
   }
 
-
-  // fill return buffer
-  for (int i{0}; i < npoints; i++) {
-    if (i < nnewpoints) {
-      for (int j{0}; j < pdim; j++) {
-        newpoints[i*pdim + j] = new_points[i*pdim + j];
+  if (!stable) {
+    // fill return buffer copy is sufficient
+    for (int i{0}; i < npoints; i++) {
+      if (i < nnewpoints) {
+        for (int j{0}; j < pdim; j++) {
+          newpoints[i * pdim + j] = new_points[i * pdim + j];
+        }
       }
+      inverse[i] = new_indices[i];
     }
-    inverse[i] = new_indices[i];
+  } else {
+    int counter{};
+    for (int i{0}; i < npoints; i++) {
+      if (newpointmasks[i] == 1) {
+        for (int j{0}; j < pdim; j++) {
+          newpoints[counter * pdim + j] = new_points[i * pdim + j];
+        }
+        counter++;
+      }
+      inverse[i] = new_indices[stable_inverse[i]];
+    }
   }
-
-
 
 } /* uff */
 
-} /* namespace */
+} // namespace uff

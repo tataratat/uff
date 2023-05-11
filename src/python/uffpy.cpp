@@ -19,7 +19,7 @@ namespace py = pybind11;
  * unique_points_info: tuple
  *   (unique_points, unique_points_mask, inverse)
  */
-py::tuple uffpy(py::array_t<double> points, double tolerance) {
+py::tuple uffpy(py::array_t<double> points, double tolerance, bool stable) {
     py::buffer_info p_buf = points.request();
     double* p_buf_ptr = static_cast<double *>(p_buf.ptr);
     int npoints = p_buf.shape[0];
@@ -57,6 +57,7 @@ py::tuple uffpy(py::array_t<double> points, double tolerance) {
              pdim,
              metric,
              tolerance,
+             stable,
              phil,
              newpointmasks,
              nnewpoints,
@@ -106,5 +107,6 @@ PYBIND11_MODULE(uffpy, m) {
                  inverse: np.ndarray (int))
             )pbdoc",
             py::arg("queries"),
-            py::arg("tolerance"));
+            py::arg("tolerance"),
+            py::arg("stable")=true);
 }

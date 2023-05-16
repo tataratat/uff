@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version}}
 
-    - name: Build tetgenpy
+    - name: Build uffpy
       run: |
         pip3 install numpy pybind11
         python3 setup.py develop

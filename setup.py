@@ -1,8 +1,7 @@
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 
-
-with open("README.md", "r") as f:
+with open("README.md") as f:
     readme = f.read()
 
 __version__ = "0.0.0"
@@ -27,21 +26,21 @@ setup(
     url="https://github.com/tataratat/uff",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
-    package_data={"src": ["*.hpp"]}, 
+    package_data={"src": ["*.hpp"]},
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Natural Language :: English',
-        'Topic :: Scientific/Engineering'
+        "Development Status :: 2 - Pre-Alpha",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Natural Language :: English",
+        "Topic :: Scientific/Engineering",
     ],
     install_requires=[
         "numpy",
     ],
     zip_safe=False,
-    license="MIT"
+    license="MIT",
 )

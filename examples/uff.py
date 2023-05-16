@@ -1,11 +1,12 @@
-import uffpy
 import numpy as np
+
+import uffpy
 
 if __name__ == "__main__":
     nq = 10000
     dup = 234
 
-    q = np.random.random((nq,3))
+    q = np.random.random((nq, 3))
     qq = np.vstack((q, q[:dup]))
     np.random.shuffle(qq)
 
@@ -34,4 +35,4 @@ if __name__ == "__main__":
     # inverse with newpoints should match queries
     np.allclose(qq, r[0][r[2]])
     # duplicating points should have been removed
-    assert r[1].sum() == nq 
+    assert r[1].sum() == nq

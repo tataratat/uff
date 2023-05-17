@@ -9,6 +9,7 @@ contains
       & pdim,            &
       & metric,          &
       & tolerance,       &
+      & stable,          &
       & newpoints,       &
       & newpointmasks,   &
       & nnewpoints,      &
@@ -19,6 +20,7 @@ contains
     integer, intent(in) :: pdim
     real(8), intent(in) :: metric(:)
     real(8), intent(in) :: tolerance
+    integer, intent(in) :: stable
     real(8), intent(out) :: newpoints(:)
     integer, intent(out) :: newpointmasks(:)
     integer, intent(out) :: nnewpoints
@@ -30,6 +32,7 @@ contains
         & pdim,          &
         & metric,        &
         & tolerance,     &
+        & stable,     &
         & newpoints,     &
         & newpointmasks, &
         & nnewpoints,    &

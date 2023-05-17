@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(uffexamples VERSION 0.0.0 LANGUAGES Fortran)
 
-if (NOT BUILD_EXAMPLES)
+if (NOT UFF_BUILD_EXAMPLES)
   find_package(uff REQUIRED)
 endif()
 

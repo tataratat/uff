@@ -12,6 +12,7 @@ option(UFF_BUILD_FORTRAN_MODULE "build fortran module" OFF)
 # some build examples requires c binding
 if (UFF_BUILD_EXAMPLES)
   set(UFF_BUILD_C_BINDING ON)
+  set(UFF_BUILD_FORTRAN_MODULE ON)
 endif()
 
 # config
@@ -49,15 +50,15 @@ endif()
 add_library(uff::uff ALIAS uff)
 set_target_properties(uff PROPERTIES CXX_STANDARD 11)
 
-if(BUILD_FORTRAN_MODULE)
+if(UFF_BUILD_FORTRAN_MODULE)
   message("*** building additional fortran module ***")
   add_subdirectory(src/fmod)
-endif(BUILD_FORTRAN_MODULE)
+endif(UFF_BUILD_FORTRAN_MODULE)
 
-if(BUILD_EXAMPLES)
+if(UFF_BUILD_EXAMPLES)
   message("*** building examples ***")
   add_subdirectory(examples)
-endif(BUILD_EXAMPLES)
+endif(UFF_BUILD_EXAMPLES)
 
 # configure config files
 include(CMakePackageConfigHelpers)

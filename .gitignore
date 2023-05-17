@@ -1,0 +1,19 @@
+# Build folders
+**/build/
+**/cmake-build-debug/
+**/install/
+CMakeFiles/
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+
+# Exclude the IDE folder
+.vscode/
+.idea/
+
+# Ignore python specific file and directories
+**/*.egg-info/
+**/__pycache__/

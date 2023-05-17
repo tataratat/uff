@@ -108,8 +108,7 @@ void uff(double* points,     /* in */
     unsigned int upper_limit = lower_limit + 1;
     while ((vector_metric[metric_order_indices[upper_limit]]
             - vector_metric[metric_order_indices[lower_limit]])
-               < tolerance
-           && upper_limit < metric_order_indices.size()) {
+           < tolerance) {
       const bool is_duplicate =
           diff_norm_squared(points,
                             metric_order_indices[lower_limit] * pdim,
@@ -130,6 +129,9 @@ void uff(double* points,     /* in */
         }
       }
       upper_limit++;
+      if (upper_limit >= metric_order_indices.size()) {
+        break;
+      }
     }
     nnewpoints++;
   }
@@ -137,9 +139,11 @@ void uff(double* points,     /* in */
   // Special case
   const auto& last_index = metric_order_indices.size() - 1;
   if (new_indices[metric_order_indices[last_index]] == -1) {
-    for (int i_dim{0}; i_dim < pdim; i_dim++) {
-      new_points.push_back(
-          points[metric_order_indices[last_index] * pdim + i_dim]);
+    if (!stable) {
+      for (int i_dim{0}; i_dim < pdim; i_dim++) {
+        new_points.push_back(
+            points[metric_order_indices[last_index] * pdim + i_dim]);
+      }
     }
     new_indices[metric_order_indices[last_index]] = nnewpoints;
     nnewpoints++;

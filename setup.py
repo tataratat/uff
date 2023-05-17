@@ -4,7 +4,7 @@ from setuptools import setup
 with open("README.md") as f:
     readme = f.read()
 
-__version__ = "0.0.0"
+__version__ = "0.0.1"
 
 ext_modules = [
     Pybind11Extension(
@@ -35,6 +35,8 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Natural Language :: English",
         "Topic :: Scientific/Engineering",
     ],

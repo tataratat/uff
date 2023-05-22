@@ -4,9 +4,16 @@ project(uff VERSION 0.0.0 LANGUAGES CXX)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
-# options
-option(BUILD_EXAMPLES "build examples" ON)
-option(BUILD_FORTRAN_MODULE "build fortran module" ON)
+# options - default is header only
+option(UFF_BUILD_EXAMPLES "build examples" OFF)
+option(UFF_BUILD_C_BINDING "build c binding" OFF)
+option(UFF_BUILD_FORTRAN_MODULE "build fortran module" OFF)
+
+# some build examples requires c binding
+if (UFF_BUILD_EXAMPLES)
+  set(UFF_BUILD_C_BINDING ON)
+  set(UFF_BUILD_FORTRAN_MODULE ON)
+endif()
 
 # config
 set(exe_dest "bin")
@@ -24,24 +31,34 @@ set(namespace "${PROJECT_NAME}::")
 set(CXX_SRCS src/uff.cpp)
 set(CXX_HEADERS src/uff.hpp)
 
-add_library(uff ${CXX_SRCS})
-add_library(uff::uff ALIAS uff)
-target_include_directories(uff
-    PUBLIC 
+# add library - either compiled or header only
+if (UFF_BUILD_C_BINDING)
+  add_library(uff ${CXX_SRCS})
+  target_include_directories(uff
+    PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:${incl_dest}>)
-set_target_properties(uff PROPERTIES CXX_STANDARD 11)
-target_compile_options(uff PRIVATE -O3) 
+  target_compile_options(uff PRIVATE -O3)
+else()
+  add_library(uff INTERFACE)
+  target_include_directories(uff
+    INTERFACE
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${incl_dest}>)
+endif()
 
-if(BUILD_FORTRAN_MODULE)
+add_library(uff::uff ALIAS uff)
+set_target_properties(uff PROPERTIES CXX_STANDARD 11)
+
+if(UFF_BUILD_FORTRAN_MODULE)
   message("*** building additional fortran module ***")
   add_subdirectory(src/fmod)
-endif(BUILD_FORTRAN_MODULE)
+endif(UFF_BUILD_FORTRAN_MODULE)
 
-if(BUILD_EXAMPLES)
+if(UFF_BUILD_EXAMPLES)
   message("*** building examples ***")
   add_subdirectory(examples)
-endif(BUILD_EXAMPLES)
+endif(UFF_BUILD_EXAMPLES)
 
 # configure config files
 include(CMakePackageConfigHelpers)

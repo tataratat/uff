@@ -5,6 +5,7 @@ program uffomg
   integer :: pdim = 3
   real(8) :: metric(3)
   real(8) :: tolerance = 1e-5
+  integer :: stable = 0
   real(8) :: newpoints(12)
   integer :: newpointmasks(4)
   integer :: nnewpoints = -1
@@ -28,6 +29,7 @@ program uffomg
         & pdim,       &
         & metric,     &
         & tolerance,  &
+        & stable,     &
         & newpoints,  &
         & newpointmasks,  &
         & nnewpoints, &

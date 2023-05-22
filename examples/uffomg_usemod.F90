@@ -12,6 +12,7 @@ program uffomg
   integer :: newpointmasks(5)
   integer :: nnewpoints = -1
   integer :: inverse(5)
+  integer :: stable = 1
 
   integer :: i !< counter
 
@@ -23,7 +24,7 @@ program uffomg
 
   metric = (/ 1., 0., 0./)
   newpoints(:) = -999999999.
-  newpointmasks(:) = .false.
+  newpointmasks(:) = 0
   inverse(:) = -1
 
   call ufffortran(    &
@@ -32,6 +33,7 @@ program uffomg
         & pdim,       &
         & metric,     &
         & tolerance,  &
+        & stable,     &
         & newpoints,  &
         & newpointmasks,  &
         & nnewpoints, &

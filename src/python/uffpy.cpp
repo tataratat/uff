@@ -1,9 +1,8 @@
 #include <iostream>
-#include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 #include "../uff.hpp"
-
 
 namespace py = pybind11;
 
@@ -19,72 +18,53 @@ namespace py = pybind11;
  * unique_points_info: tuple
  *   (unique_points, unique_points_mask, inverse)
  */
-py::tuple uffpy(py::array_t<double> points, double tolerance) {
-    py::buffer_info p_buf = points.request();
-    double* p_buf_ptr = static_cast<double *>(p_buf.ptr);
-    int npoints = p_buf.shape[0];
-    int pdim = p_buf.shape[1];
-    // selecting metric for you.
-    double* metric = new double[pdim];
-    for (int i{0}; i < pdim; i++) {
-        metric[i] = 1.;
-    }
+py::tuple uffpy(py::array_t<double> points, double tolerance, bool stable) {
+  // Access points
+  double* p_buf_ptr = static_cast<double*>(points.request().ptr);
+  int npoints = points.shape(0);
+  int pdim = points.shape(1);
 
-    // prepare output arrays
-    py::array_t<int> np_newpointmasks(npoints);
-    py::buffer_info npm_buf = np_newpointmasks.request();
-    int* newpointmasks = static_cast<int *>(npm_buf.ptr);
+  // selecting metric for you.
+  std::vector<double> metric(pdim, 1.);
 
-    py::array_t<int> np_inverse(npoints);
-    py::buffer_info i_buf = np_inverse.request();
-    int* inverse = static_cast<int *>(i_buf.ptr);
+  // prepare output arrays
+  py::array_t<int> np_newpointmasks(npoints);
+  py::buffer_info npm_buf = np_newpointmasks.request();
+  int* newpointmasks = static_cast<int*>(npm_buf.ptr);
 
-    // prepare additional input vars
-    int nnewpoints;
+  py::array_t<int> np_inverse(npoints);
+  py::buffer_info i_buf = np_inverse.request();
+  int* inverse = static_cast<int*>(i_buf.ptr);
 
-    // prepare temp array to store newpoints.
-    // we call this thing phil
-    double* phil = new double[npoints * pdim];
+  // prepare additional input vars
+  int nnewpoints{};
 
-    // Dialogue
-    // ---------
-    // pyuff - (calls uff)
-    // uff - Guten Tag uff am Apparat
-    // pyuff - einmal uff bitte
-    // uff - ::uff!
-    uff::uff(p_buf_ptr,
-             npoints,
-             pdim,
-             metric,
-             tolerance,
-             phil,
-             newpointmasks,
-             nnewpoints,
-             inverse);
+  // prepare temp array to store newpoints.
+  // we call this thing phil
+  py::array_t<double> np_newpoints({npoints, pdim});
 
-    // real newpoints
-    py::array_t<double> np_newpoints({nnewpoints, pdim});
-    py::buffer_info np_buf = np_newpoints.request();
-    double* newpoints = static_cast<double *>(np_buf.ptr);
-    // fill it up, phil.
-    for (int i{0}; i < nnewpoints; i++) {
-      for (int j{0}; j < pdim; j++) {
-        newpoints[i*pdim + j] = phil[i*pdim + j];
-      }
-    }
+  uff::uff(p_buf_ptr,
+           npoints,
+           pdim,
+           metric.data(),
+           tolerance,
+           stable,
+           static_cast<double*>(np_newpoints.request().ptr),
+           newpointmasks,
+           nnewpoints,
+           inverse);
 
-    // be free and live your life
-    delete[] metric;
-    delete[] phil;
+  // real newpoints
+  assert(nnewpoints > 0);
+  np_newpoints.resize({nnewpoints, pdim}, false);
 
-    return py::make_tuple(np_newpoints, np_newpointmasks, np_inverse);
+  return py::make_tuple(np_newpoints, np_newpointmasks, np_inverse);
 }
-
 
 PYBIND11_MODULE(uffpy, m) {
   m.def("uffpy",
-            &uffpy,
-            R"pbdoc(
+        &uffpy,
+        R"pbdoc(
               Given set of points, returns unique newpoints, unique point
               masks, inverse. Some useful information regarding returns:
               >>> newpoints, newpointmasks, inverse = uff.uff(queries, tol)
@@ -105,6 +85,7 @@ PYBIND11_MODULE(uffpy, m) {
                  newpointmasks: np.ndarray (int),
                  inverse: np.ndarray (int))
             )pbdoc",
-            py::arg("queries"),
-            py::arg("tolerance"));
+        py::arg("queries"),
+        py::arg("tolerance"),
+        py::arg("stable") = true);
 }

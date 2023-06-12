@@ -51,16 +51,16 @@ std::vector<size_t> sort_indices(const std::vector<T>& v) {
  *   newpointmasks <- npoints
  *   inverse <- npoints
  */
-void uff(double* points,     /* in */
-         int& npoints,       /* in */
-         int& pdim,          /* in */
-         double* metric,     /* in */
-         double& tolerance,  /* in */
-         const bool& stable, /* in */
-         double* newpoints,  /* out */
-         int* newpointmasks, /* out */
-         int& nnewpoints,    /* out */
-         int* inverse) {     /* out */
+inline void uff(double* points,     /* in */
+                int& npoints,       /* in */
+                int& pdim,          /* in */
+                double* metric,     /* in */
+                double& tolerance,  /* in */
+                const bool& stable, /* in */
+                double* newpoints,  /* out */
+                int* newpointmasks, /* out */
+                int& nnewpoints,    /* out */
+                int* inverse) {     /* out */
 
   const double tolerance_squared{tolerance * tolerance};
 

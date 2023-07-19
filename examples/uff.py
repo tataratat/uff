@@ -3,36 +3,55 @@ import numpy as np
 import uffpy
 
 if __name__ == "__main__":
-    nq = 10000
-    dup = 234
+    import datetime 
+    np.random.seed(int(datetime.datetime.now().timestamp()))
+    # Test with repeated at end
+    dim = 3
+    test_values = 100
+    test_vector = np.random.rand(test_values,dim)
+    test_vector = np.vstack([test_vector,test_vector, np.random.rand(test_values,dim), test_vector])
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, False)
 
-    q = np.random.random((nq, 3))
-    qq = np.vstack((q, q[:dup]))
-    np.random.shuffle(qq)
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == test_values * 2
 
-    print("query points")
-    print("===========================")
-    print(qq)
-    r = uffpy.uffpy(qq, 1e-5)
-    print()
-    print("results")
-    print("========")
-    print()
-    print("newpoints")
-    print("----------")
-    print("shape: ", r[0].shape)
-    print(r[0])
-    print()
-    print("newpointmasks")
-    print("--------------")
-    print(r[1])
-    print()
-    print("inverse")
-    print("--------")
-    print(r[2])
-    print()
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, False)
+    
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == 2 * test_values
+    
+    # Test without
+    test_vector = np.random.rand(test_values,dim)
+    test_vector = np.vstack([test_vector,test_vector, np.random.rand(test_values,dim)])
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, True)
 
-    # inverse with newpoints should match queries
-    np.allclose(qq, r[0][r[2]])
-    # duplicating points should have been removed
-    assert r[1].sum() == nq
+    
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == 2 * test_values
+
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, False)
+    
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == 2 * test_values
+
+    # Test without duplicates
+    test_vector = np.random.rand(test_values,dim)
+    test_vector = np.vstack([test_vector, np.random.rand(test_values,dim)])
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, True)
+
+    
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == 2 * test_values
+
+    new_points, mask, inverse = uffpy.uffpy(test_vector, 1e-12, False)
+    
+    assert np.allclose(new_points, test_vector[mask])
+    assert np.allclose(new_points[inverse,:], test_vector)
+    assert new_points.shape[0] == 2 * test_values
+    print("SUCCESS")
+    

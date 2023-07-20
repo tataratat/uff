@@ -1,22 +1,20 @@
-#include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+
+#include <iostream>
 
 #include "../uff.hpp"
 
 namespace py = pybind11;
 
-/*!
- * PyUff
+/**
+ * @brief
  *
- * Parameters
- * -----------
- * point: np.ndarray
- *
- * Returns
- * --------
- * unique_points_info: tuple
- *   (unique_points, unique_points_mask, inverse)
+ * @param points original points in python numpy format
+ * @param tolerance tolerance between two neighboring points to be regarded as
+ * one
+ * @param stable Preserve order of points
+ * @return py::tuple
  */
 py::tuple uffpy(py::array_t<double> points, double tolerance, bool stable) {
   // Access points
@@ -28,9 +26,8 @@ py::tuple uffpy(py::array_t<double> points, double tolerance, bool stable) {
   std::vector<double> metric(pdim, 1.);
 
   // prepare output arrays
-  py::array_t<int> np_newpointmasks(npoints);
-  py::buffer_info npm_buf = np_newpointmasks.request();
-  int* newpointmasks = static_cast<int*>(npm_buf.ptr);
+  py::array_t<int> new_indices(npoints);
+  int* new_indices_ptr = static_cast<int*>(new_indices.request().ptr);
 
   py::array_t<int> np_inverse(npoints);
   py::buffer_info i_buf = np_inverse.request();
@@ -42,35 +39,38 @@ py::tuple uffpy(py::array_t<double> points, double tolerance, bool stable) {
   // prepare temp array to store newpoints.
   // we call this thing phil
   py::array_t<double> np_newpoints({npoints, pdim});
+  double* np_newpoints_ptr = static_cast<double*>(np_newpoints.request().ptr);
 
-  uff::uff(p_buf_ptr,
-           npoints,
-           pdim,
-           metric.data(),
-           tolerance,
-           stable,
-           static_cast<double*>(np_newpoints.request().ptr),
-           newpointmasks,
-           nnewpoints,
-           inverse);
+  uff::uff(p_buf_ptr,         // original points
+           npoints,           // number of original points
+           pdim,              // dimensions of points
+           metric.data(),     // metric that reorganizes points
+           tolerance,         // tolerance between neighboring points
+           stable,            // Use stable sort
+           np_newpoints_ptr,  // pointer to new points (make sure enough space
+                              // is allocated)
+           new_indices_ptr,   // IDs after resorting
+           nnewpoints,        // number of new points
+           inverse            // return value, inverse ids to original vector
+  );
 
   // real newpoints
   assert(nnewpoints > 0);
   np_newpoints.resize({nnewpoints, pdim}, false);
+  new_indices.resize({nnewpoints}, false);
 
-  return py::make_tuple(np_newpoints, np_newpointmasks, np_inverse);
+  return py::make_tuple(np_newpoints, new_indices, np_inverse);
 }
 
 PYBIND11_MODULE(uffpy, m) {
-  m.def("uffpy",
-        &uffpy,
+  m.def("uffpy", &uffpy,
         R"pbdoc(
               Given set of points, returns unique newpoints, unique point
               masks, inverse. Some useful information regarding returns:
-              >>> newpoints, newpointmasks, inverse = uff.uff(queries, tol)
+              >>> newpoints, new_indices, inverse = uff.uff(queries, tol)
               >>> queries == newpoints[inverse]
               True
-              >>> newpoints == queries[newpointmasks.astype(bool)]
+              >>> newpoints == queries[new_indices]
               False
 
               Parameters
@@ -82,10 +82,8 @@ PYBIND11_MODULE(uffpy, m) {
               --------
               unique_vertices_info: tuple
                 (newpoints: np.ndarray (double),
-                 newpointmasks: np.ndarray (int),
+                 new_indices: np.ndarray (int),
                  inverse: np.ndarray (int))
             )pbdoc",
-        py::arg("queries"),
-        py::arg("tolerance"),
-        py::arg("stable") = true);
+        py::arg("queries"), py::arg("tolerance"), py::arg("stable") = true);
 }

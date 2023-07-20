@@ -29,27 +29,28 @@ template <typename T>
 std::vector<size_t> sort_indices(const std::vector<T>& v) {
   std::vector<size_t> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
-  std::stable_sort(idx.begin(), idx.end(),
-                   [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
+  std::sort(idx.begin(), idx.end(),
+            [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
 
   return idx;
 }
 
-inline void uff(double* original_points,   /* in */
+template <typename DataType>
+inline void uff(DataType* original_points, /* in */
                 int& number_of_points,     /* in */
                 int& point_dim,            /* in */
-                double* metric,            /* in */
-                double& tolerance,         /* in */
+                DataType* metric,          /* in */
+                DataType& tolerance,       /* in */
                 const bool& stable,        /* in */
-                double* new_points,        /* out */
+                DataType* new_points,      /* out */
                 int* new_indices,          /* out */
                 int& number_of_new_points, /* out */
                 int* inverse) {            /* out */
 
-  const double tolerance_squared{tolerance * tolerance};
+  const DataType tolerance_squared{tolerance * tolerance};
 
   // Create a vector that contains the metric
-  std::vector<double> vector_metric{};
+  std::vector<DataType> vector_metric{};
   vector_metric.resize(number_of_points);
   for (int i{0}; i < number_of_points; i++) {
     vector_metric[i] = metric[0] * original_points[i * point_dim];
